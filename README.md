@@ -4,7 +4,7 @@ This repo contains MATLAB codes for solving a general nonlinear optimal control 
 In optimal contorl theory a standard optimal control is defined as
 
 <p align="center">
-  <img src="https://quicklatex.com/cache3/4b/ql_f0a92f6c2743c22d543188b723fcfd4b_l3.png" alt="optimal control problem">
+  <img src="assests/optimal_control_problem" alt="optimal control problem">
 </p>
 
 The solution to the problem above comes from calculus of variations. A Hamiltonian function is defined as
