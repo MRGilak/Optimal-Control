@@ -59,9 +59,11 @@ Outputs:
 
 Requirements:
 - MATLAB Symbolic Math Toolbox
+- Free time support has been added. You can use the available options to set it up. Take a look at `CSTR_freeTf.m` to see how to use it 
 
 Notes:
 - Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
-- Two sample scripts have been provided:
+- Three sample scripts have been provided:
    1. `demo.m` contains a linear system with two states and two inputs.
    2. `CSTR.m` solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo).
+   3. `CSTR_freeTf.m` [Free time CSTR](Codes/CSTR_freeTf.m) solves the same optimal control problem as `CSTR.m`, but with free final time 
