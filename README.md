@@ -35,31 +35,31 @@ Problem:
 - x0     : initial state (numeric) [n x 1]
 - U0     : initial control trajectory over tGrid [N x m]
 - opts   : options struct (all optional fields):
-            - maxIters      (default 50)
-            - alpha         (default 1.0)     initial step size for gradient descent
-            - beta          (default 0.5)     backtracking reduction factor (0<beta<1)
-            - c1            (default 1e-4)    Armijo condition constant
-            - tol           (default 1e-6)    stopping tolerance on ||grad_u||_F
-            - odeOptions    (default [])      options set by odeset
-            - interp        (default 'linear') 'linear' or 'zoh' for u/x interpolation
-            - uLower        (default [])      lower bounds on u (1x m) or scalar
-            - uUpper        (default [])      upper bounds on u (1x m) or scalar
-            - maxLineSearch (default 10)
-            - verbose       (default true)
+            1. maxIters      (default 50)
+            2. alpha         (default 1.0)     initial step size for gradient descent
+            3. beta          (default 0.5)     backtracking reduction factor (0<beta<1)
+            4. c1            (default 1e-4)    Armijo condition constant
+            5. tol           (default 1e-6)    stopping tolerance on ||grad_u||_F
+            6. odeOptions    (default [])      options set by odeset
+            7. interp        (default 'linear') 'linear' or 'zoh' for u/x interpolation
+            8. uLower        (default [])      lower bounds on u (1x m) or scalar
+            9. uUpper        (default [])      upper bounds on u (1x m) or scalar
+            10. maxLineSearch (default 10)
+            11. verbose       (default true)
 
- Outputs:
-   sol.t   - time grid [N x 1]
-   sol.X   - state trajectory along tGrid [N x n]
-   sol.U   - control trajectory along tGrid [N x m]
-   sol.P   - costate trajectory along tGrid [N x n]
-   sol.J   - final cost value at solution
-   sol.J_hist - cost history per iteration
-   sol.grad_norm_hist - gradient-norm history per iteration
-   info.iters - number of iterations performed
+Outputs:
+- sol.t   : time grid [N x 1]
+- sol.X   : state trajectory along tGrid [N x n]
+- sol.U   : control trajectory along tGrid [N x m]
+- sol.P   : costate trajectory along tGrid [N x n]
+- sol.J   : final cost value at solution
+- sol.J_hist : cost history per iteration
+- sol.grad_norm_hist : gradient-norm history per iteration
+- info.iters : number of iterations performed
 
- Requirements:
-   - MATLAB Symbolic Math Toolbox
+Requirements:
+- MATLAB Symbolic Math Toolbox
 
- Notes:
-   - Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
+Notes:
+- Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
 
