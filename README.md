@@ -16,7 +16,7 @@ And the optimal control input can be calcuated using the relationships below:
 Here `p` denotes the costates. This set of equations is generally hard to solve, because they are two point boundary nonlinear equations. The initial values of `x` and the final values of `p` are known.
 One way to solve this set of equations is using the gradient descent algorithm. An initial guess of the control input `u` is selected and the equations are solved for `x` and `p`, given the boundary values. Then `u` is corrected using the gradient of the Hamiltonian. 
 
-This exact logic has been implemented in the function optimalControlSolver. Here, we go over the variables, inputs and outputs of the function.
+This exact logic has been implemented in the function [optimalControlSolver](optimalControlSolver). Here, we go over the variables, inputs and outputs of the function.
 
 Problem:
    Minimize  J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt
@@ -59,11 +59,11 @@ Outputs:
 
 Requirements:
 - MATLAB Symbolic Math Toolbox
-- Free time support has been added. You can use the available options to set it up. Take a look at `CSTR_freeTf.m` to see how to use it 
+- Free time support has been added. You can use the available options to set it up. Take a look at [Free time CSTR](Codes/CSTR_freeTf.m) to see how to use it 
 
 Notes:
 - Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
 - Three sample scripts have been provided:
-   1. `demo.m` contains a linear system with two states and two inputs.
-   2. `CSTR.m` solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo).
-   3. `CSTR_freeTf.m` [Free time CSTR](Codes/CSTR_freeTf.m) solves the same optimal control problem as `CSTR.m`, but with free final time 
+   1. [demo.m](demo.m) contains a linear system with two states and two inputs.
+   2. [CSTR.m](CSTR.m) solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo).
+   3. [Free time CSTR](Codes/CSTR_freeTf.m) solves the same optimal control problem as [CSTR.m](CSTR.m), but with free final time 
