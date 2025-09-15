@@ -38,8 +38,17 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
     opts = setDefault(opts, 'maxLineSearch', 10);
     opts = setDefault(opts, 'verbose', true);
 
+    % Optional free-final-time settings
+    opts = setDefault(opts, 'freeFinalTime', false);
+    opts = setDefault(opts, 'tfAlpha', 0.5);
+    opts = setDefault(opts, 'tfBeta', 0.5);
+    opts = setDefault(opts, 'tfC1', 1e-4);
+    opts = setDefault(opts, 'tfLower', []);
+    opts = setDefault(opts, 'tfUpper', []);
+
     %% Build symbolic gradients and numeric function handles
     pSym = sym('p', size(xSym));                     % symbolic costate vector 
+    tSym = sym('t');                                 % time symbol 
 
     % Hamiltonian gradients
     dGdx_sym = jacobian(symG, xSym).';               % [n x 1]
@@ -51,22 +60,39 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
     dHdu_sym = dGdu_sym + Jfu_sym.' * pSym;          % [m x 1]
     gradPhi_sym = jacobian(symPhi, xSym).';          % [n x 1]
 
+    % Time-derivative of Phi if time appears
+    if has(symPhi, tSym)
+        dPhi_dt_sym = diff(symPhi, tSym);
+    else
+        dPhi_dt_sym = sym(0);
+    end
+
     % Numeric function handles
     f_num = matlabFunction(symF, 'Vars', {xSym, uSym});
     g_num = matlabFunction(symG, 'Vars', {xSym, uSym});
     dHdx_num = matlabFunction(dHdx_sym, 'Vars', {xSym, uSym, pSym});
     dHdu_num = matlabFunction(dHdu_sym, 'Vars', {xSym, uSym, pSym});
-    gradPhi_num = matlabFunction(gradPhi_sym, 'Vars', {xSym});
+    if has(symPhi, tSym) || any(has(gradPhi_sym, tSym), 'all')
+        gradPhi_num = matlabFunction(gradPhi_sym, 'Vars', {xSym, tSym});
+    else
+        gradPhi_num = matlabFunction(gradPhi_sym, 'Vars', {xSym});
+    end
 
     % Prepare outputs
     J_hist = zeros(opts.maxIters,1);
     grad_norm_hist = zeros(opts.maxIters,1);
 
     % Helper for projection
-    project = @(Ui) projectU(Ui, opts.uLower, opts.uUpper);
+    projU = @(Ui) projectU(Ui, opts.uLower, opts.uUpper);
 
-    % Prebuild terminal cost Phi(x)
-    Phi_num = matlabFunction(symPhi, 'Vars', {xSym});
+    % Prebuild terminal cost functions
+    if has(symPhi, tSym)
+        Phi_num = matlabFunction(symPhi, 'Vars', {xSym, tSym});
+        dPhi_dt_num = matlabFunction(dPhi_dt_sym, 'Vars', {xSym, tSym});
+    else
+        Phi_num = matlabFunction(symPhi, 'Vars', {xSym});
+        dPhi_dt_num = @(x, t) 0; 
+    end
 
     % Initial forward pass to get a baseline cost
     [X, ~] = forwardSim(tGrid, x0, U, f_num, opts.odeOptions, opts.interp);
@@ -81,8 +107,12 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
         % Forward: x(t)
         [X, x_of_t] = forwardSim(tGrid, x0, U, f_num, opts.odeOptions, opts.interp);
 
-        % Backward: p(t) with terminal condition p(tf) = ∂Phi/∂x(x(tf))
-        pTf = gradPhi_num(X(end,:).');
+        % Backward: p(t) with terminal condition p(tf) = ∂Phi/∂x(x(tf)[,tf])
+        if nargin(gradPhi_num) == 2
+            pTf = gradPhi_num(X(end,:).', tGrid(end));
+        else
+            pTf = gradPhi_num(X(end,:).');
+        end
         [P, ~] = backwardSim(tGrid, pTf, x_of_t, U, dHdx_num, opts.odeOptions, opts.interp);
 
         % Compute gradient wrt u
@@ -118,7 +148,7 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
         alpha = opts.alpha;
         accepted = false;
         for ls = 1:opts.maxLineSearch
-            U_try = project(U - alpha * dHdu);
+            U_try = projU(U - alpha * dHdu);
 
             % Forward simulate to evaluate cost
             [X_try, ~] = forwardSim(tGrid, x0, U_try, f_num, opts.odeOptions, opts.interp);
@@ -142,11 +172,69 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
             end
             break;
         end
+
+        % Update free final time via transversality if requested
+        if opts.freeFinalTime
+            xf = X(end,:).';
+            uf = U(end,:).';
+            pf = P(end,:).';
+            tf_curr = tGrid(end);
+
+            % Hamiltonian at tf 
+            H_end = g_num(xf, uf) + pf.' * f_num(xf, uf);
+
+            % dPhi/dt if Phi depends on time
+            if exist('dPhi_dt_num','var') && nargin(dPhi_dt_num) == 2 
+                dPhi_dt_val = dPhi_dt_num(xf, tf_curr);
+            else
+                dPhi_dt_val = 0;
+            end
+            dJdtf = H_end + dPhi_dt_val;
+
+            if abs(dJdtf) < max(opts.tol, 1e-8) && grad_norm < opts.tol
+                if opts.verbose
+                    fprintf('Converged: small dJ/dtf and control gradient.\n');
+                end
+                break;
+            end
+
+            eta = opts.tfAlpha;
+            acceptedTf = false;
+            for ls = 1:opts.maxLineSearch
+                tf_try = projectTf(tf_curr - eta * dJdtf, opts.tfLower, opts.tfUpper);
+                if tf_try <= 0
+                    eta = eta * opts.tfBeta; continue;
+                end
+                if abs(tf_try - tf_curr) < 1e-12
+                    break; % no effective change
+                end
+                % Resample U to the new final time (keep N fixed)
+                [tGrid_try, U_try] = resampleUOnNewTf(tGrid, U, tf_curr, tf_try, opts.interp);
+                [X_try, ~] = forwardSim(tGrid_try, x0, U_try, f_num, opts.odeOptions, opts.interp);
+                J_try = computeCost(tGrid_try, X_try, U_try, g_num, Phi_num);
+                if J_try <= J - opts.tfC1 * eta * (dJdtf^2)
+                    tGrid = tGrid_try; % adopt new grid
+                    U = projU(U_try);
+                    J = J_try;
+                    acceptedTf = true;
+                    break;
+                else
+                    eta = eta * opts.tfBeta;
+                end
+            end
+            if ~acceptedTf && opts.verbose
+                fprintf('Final time step not accepted this iteration.\n');
+            end
+        end
     end
 
     % Final forward/backward to report solution
     [X, x_of_t] = forwardSim(tGrid, x0, U, f_num, opts.odeOptions, opts.interp);
-    pTf = gradPhi_num(X(end,:).');
+    if nargin(gradPhi_num) == 2
+        pTf = gradPhi_num(X(end,:).', tGrid(end));
+    else
+        pTf = gradPhi_num(X(end,:).');
+    end
     [P, ~] = backwardSim(tGrid, pTf, x_of_t, U, dHdx_num, opts.odeOptions, opts.interp);
     J = computeCost(tGrid, X, U, g_num, Phi_num);
 
@@ -159,6 +247,7 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
     % Package outputs
     sol = struct();
     sol.t = tGrid;
+    sol.tf = tGrid(end);
     sol.X = X;
     sol.U = U;
     sol.P = P;
@@ -232,21 +321,43 @@ function y = interpRow(tGrid, Y, t, method)
 end
 
 function J = computeCost(tGrid, X, U, g_num, Phi_num)
-	% Compute J = Phi(x(tf)) + ∫ g(x,u) dt via trapz using prebuilt Phi_num(x).
+    % Compute J = Phi(x(tf)[,tf]) + ∫ g(x,u) dt via trapz. g has no explicit t here.
+    N = size(X,1);
+    g_vals = zeros(N,1);
+    for i = 1:N
+        g_vals(i) = g_num(X(i,:).', U(i,:).');
+    end
+    intG = trapz(tGrid, g_vals);
+    % Terminal cost: handle Phi(x) or Phi(x,t)
+    if nargin(Phi_num) == 2
+        term = Phi_num(X(end,:).', tGrid(end));
+    else
+        term = Phi_num(X(end,:).');
+    end
+    J = term + intG;
+end
 
-	N = size(X,1);
-	g_vals = zeros(N,1);
-	for i = 1:N
-		g_vals(i) = g_num(X(i,:).', U(i,:).');
-	end
-	intG = trapz(tGrid, g_vals);
-	term = Phi_num(X(end,:).');
-	J = term + intG;
+function tfp = projectTf(tf, tfLower, tfUpper)
+    tfp = tf;
+    if ~isempty(tfLower), tfp = max(tfp, tfLower); end
+    if ~isempty(tfUpper), tfp = min(tfp, tfUpper); end
+    tfp = max(tfp, eps);
+end
+
+function [tGrid_new, U_new] = resampleUOnNewTf(tGrid_old, U_old, tf_old, tf_new, interpMode)
+    % Resample control to new final time while keeping N fixed using normalized time
+    N = size(U_old,1);
+    s = linspace(0,1,N).';
+    tGrid_new = s * tf_new;
+    u_of_t_old = makeInterpolant(tGrid_old, U_old, interpMode);
+    U_new = zeros(N, size(U_old,2));
+    for i = 1:N
+        U_new(i,:) = u_of_t_old(s(i) * tf_old).';
+    end
 end
 
 function Uproj = projectU(U, uLower, uUpper) 
     % Project each row of U to be within [uLower, uUpper] if bounds are given.
-
 	Uproj = U;
 	m = size(U,2);
 	if ~isempty(uLower)
