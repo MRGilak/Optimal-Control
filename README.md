@@ -26,26 +26,26 @@ Problem:
    [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGrid, x0, U0, opts)
 
  Inputs:
-   symF   - symbolic vector field f(x,u) of size [n x 1]
-   symG   - symbolic scalar running cost g(x,u)
-   symPhi - symbolic scalar terminal cost Phi(x)
-   xSym   - symbolic state vector [x1; x2; ...; xn]
-   uSym   - symbolic control vector [u1; u2; ...; um]
-   tGrid  - time grid (column or row) of size [N x 1] or [1 x N], increasing, with tGrid(1 = 0)
-   x0     - initial state (numeric) [n x 1]
-   U0     - initial control trajectory over tGrid [N x m]
-   opts   - options struct (all optional fields):
-            .maxIters      (default 50)
-            .alpha         (default 1.0)     initial step size for gradient descent
-            .beta          (default 0.5)     backtracking reduction factor (0<beta<1)
-            .c1            (default 1e-4)    Armijo condition constant
-            .tol           (default 1e-6)    stopping tolerance on ||grad_u||_F
-            .odeOptions    (default [])      options set by odeset
-            .interp        (default 'linear') 'linear' or 'zoh' for u/x interpolation
-            .uLower        (default [])      lower bounds on u (1x m) or scalar
-            .uUpper        (default [])      upper bounds on u (1x m) or scalar
-            .maxLineSearch (default 10)
-            .verbose       (default true)
+- symF   : symbolic vector field f(x,u) of size [n x 1]
+- symG   : symbolic scalar running cost g(x,u)
+- symPhi : symbolic scalar terminal cost Phi(x)
+- xSym   : symbolic state vector [x1; x2; ...; xn]
+- uSym   : symbolic control vector [u1; u2; ...; um]
+- tGrid  : time grid (column or row) of size [N x 1] or [1 x N], increasing, with tGrid(1 = 0)
+- x0     : initial state (numeric) [n x 1]
+- U0     : initial control trajectory over tGrid [N x m]
+- opts   : options struct (all optional fields):
+            - maxIters      (default 50)
+            - alpha         (default 1.0)     initial step size for gradient descent
+            - beta          (default 0.5)     backtracking reduction factor (0<beta<1)
+            - c1            (default 1e-4)    Armijo condition constant
+            - tol           (default 1e-6)    stopping tolerance on ||grad_u||_F
+            - odeOptions    (default [])      options set by odeset
+            - interp        (default 'linear') 'linear' or 'zoh' for u/x interpolation
+            - uLower        (default [])      lower bounds on u (1x m) or scalar
+            - uUpper        (default [])      upper bounds on u (1x m) or scalar
+            - maxLineSearch (default 10)
+            - verbose       (default true)
 
  Outputs:
    sol.t   - time grid [N x 1]
