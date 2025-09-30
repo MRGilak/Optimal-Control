@@ -64,6 +64,6 @@ Requirements:
 Notes:
 - Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
 - Three sample scripts have been provided:
-   1. [demo.m](demo.m) contains a linear system with two states and two inputs.
-   2. [CSTR.m](CSTR.m) solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo).
+   1. [demo.m](Codes/demo.m) contains a linear system with two states and two inputs.
+   2. [CSTR.m](Codes/CSTR.m) solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo).
    3. [Free time CSTR](Codes/CSTR_freeTf.m) solves the same optimal control problem as [CSTR.m](CSTR.m), but with free final time 
