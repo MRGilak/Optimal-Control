@@ -1,4 +1,4 @@
-# Optimal-Control
+ # Optimal-Control
 This repo contains MATLAB codes for solving a general nonlinear optimal control problem using the gradient descent approach.
 
 In optimal contorl theory a standard optimal control is defined as
@@ -28,7 +28,7 @@ $$
 Here `p` denotes the costates. This set of equations is generally hard to solve, because they are two point boundary nonlinear equations. The initial values of `x` and the final values of `p` are known.
 One way to solve this set of equations is using the gradient descent algorithm. An initial guess of the control input `u` is selected and the equations are solved for `x` and `p`, given the boundary values. Then `u` is corrected using the gradient of the Hamiltonian. 
 
-This exact logic has been implemented in the function [optimalControlSolver](Codes/optimalControlSolver). Here, we go over the variables, inputs and outputs of the function.
+This exact logic has been implemented in the function [optimalControlSolver](Codes/optimalControlSolver.m). Here, we go over the variables, inputs and outputs of the function.
 
 Problem:
    Minimize  J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt
