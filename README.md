@@ -28,11 +28,39 @@ $$
 Here `p` denotes the costates. This set of equations is generally hard to solve, because they are two point boundary nonlinear equations. The initial values of `x` and the final values of `p` are known.
 One way to solve this set of equations is using the gradient descent algorithm. An initial guess of the control input `u` is selected and the equations are solved for `x` and `p`, given the boundary values. Then `u` is corrected using the gradient of the Hamiltonian. 
 
+## Free Final Time Problems
+
+When the final time $t_f$ is not specified and can be freely chosen to minimize the cost, an additional optimality condition must be satisfied. This condition is known as the _transversality condition_ for free final time.
+
+For a problem with free $t_f$, the total cost is:
+
+$$
+   J = \phi(x(t_f), t_f) + \int_0^{t_f} g(x,u) \, dt
+$$
+
+At the optimal solution, not only must the control satisfy $\frac{\partial \mathcal{H}}{\partial u} = 0$ (in unconstrained input case), but the final time must also satisfy:
+
+$$
+   \frac{dJ}{dt_f} = \mathcal{H}(x(t_f), u(t_f), p(t_f)) + \frac{\partial \phi}{\partial t}\bigg|_{t_f} = 0
+$$
+
+This condition arises because when $t_f$ is perturbed by a small amount $\delta t_f$, the cost changes due to two effects:  
+- the terminal cost changes as $\frac{\partial \phi}{\partial t} \delta t_f$
+-  the integral cost changes by adding a time slice of width $\delta t_f$ with integrand $g + p^T f = \mathcal{H}$.
+
+At optimality, these combined effects must sum to zero.
+
+The solver implements this by performing alternating optimization: first updating the control `u` via gradient descent on $\frac{\partial \mathcal{H}}{\partial u}$, then updating the final time $t_f$ via gradient descent on $\frac{dJ}{dt_f}$. Both steps use Armijo backtracking line search to ensure cost reduction. For more details on the transversality condition, see the [Wikipedia article on Pontryagin's Maximum Principle](https://en.wikipedia.org/wiki/Pontryagin%27s_maximum_principle).
+
 This exact logic has been implemented in the function [optimalControlSolver](Codes/optimalControlSolver.m). Here, we go over the variables, inputs and outputs of the function.
 
 Problem:
-   Minimize  J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt
-   subject to ẋ = f(x,u),  x(0) = x0
+   Minimize  
+   
+   $$
+   J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt \\
+   subject to ẋ = f(x,u),\quad x(0) = x0
+   $$
 
  Usage:
    [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGrid, x0, U0, opts)

@@ -107,7 +107,7 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
         % Forward: x(t)
         [X, x_of_t] = forwardSim(tGrid, x0, U, f_num, opts.odeOptions, opts.interp);
 
-        % Backward: p(t) with terminal condition p(tf) = ∂Phi/∂x(x(tf)[,tf])
+        % Backward: p(t) with terminal condition p(tf) = \frac{\partial Phi}{\partial x}(x(tf)[,tf])
         if nargin(gradPhi_num) == 2
             pTf = gradPhi_num(X(end,:).', tGrid(end));
         else
@@ -259,7 +259,7 @@ function [sol, info] = optimalControlSolver(symF, symG, symPhi, xSym, uSym, tGri
     info.iters = lastIter;
 end
 
-% ===================== Helpers =====================
+% Helpers
 
 function S = setDefault(S, field, value)
 	if ~isfield(S, field) || isempty(S.(field))
@@ -272,7 +272,7 @@ function [X, x_of_t] = forwardSim(tGrid, x0, U, f_num, odeOptions, interpMode)
 	u_of_t = makeInterpolant(tGrid, U, interpMode);
 	if isempty(odeOptions), odeOptions = odeset(); end
 
-	% ODE: ẋ = f(x, u(t))
+	% ODE: \dot{x} = f(x, u(t))
 	odefun = @(t,x) f_num(x, u_of_t(t));
 	[~, X] = ode45(odefun, tGrid, x0, odeOptions);
 	x_of_t = makeInterpolant(tGrid, X, 'linear');
@@ -282,7 +282,7 @@ function [P, p_of_t] = backwardSim(tGrid, pTf, x_of_t, U, dHdx_num, odeOptions, 
 	% Interpolants for x(t), u(t)
 	u_of_t = makeInterpolant(tGrid, U, interpMode);
 
-	% Backward ODE: ṗ = -∂H/∂x(x(t), u(t), p(t))
+	% Backward ODE: ṗ = -\frac{\partial H}{\partial x}(x(t), u(t), p(t))
 	if isempty(odeOptions), odeOptions = odeset(); end
 	odefun = @(t,p) -dHdx_num(x_of_t(t), u_of_t(t), p);
 
