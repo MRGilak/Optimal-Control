@@ -1,5 +1,9 @@
- # Optimal-Control
-This repo contains MATLAB codes for solving a general nonlinear optimal control problem using the gradient descent approach.
+# Optimal Control
+In this repository, MATLAB and Python functions are provided for solving a general nonlinear optimal control problem using the gradient descent approach.
+
+You can define your optimal control problem symbolically using MATLAB symbolic or Python sympy and the functions will solve the problem. Several demos are provided alongside the main functions. 
+
+## Theoretical Background
 
 In optimal contorl theory a standard optimal control is defined as
 
@@ -29,7 +33,7 @@ $$
 Here `p` denotes the costates. This set of equations is generally hard to solve, because they are two point boundary nonlinear equations. The initial values of `x` and the final values of `p` are known.
 One way to solve this set of equations is using the gradient descent algorithm. An initial guess of the control input `u` is selected and the equations are solved for `x` and `p`, given the boundary values. Then `u` is corrected using the gradient of the Hamiltonian. 
 
-## Free Final Time Problems
+### Free Final Time Problems
 
 When the final time $t_f$ is not specified and can be freely chosen to minimize the cost, an additional optimality condition must be satisfied. This condition is known as the _transversality condition_ for free final time.
 
@@ -53,15 +57,20 @@ At optimality, these combined effects must sum to zero.
 
 The solver implements this by performing alternating optimization: first updating the control `u` via gradient descent on $\frac{\partial \mathcal{H}}{\partial u}$, then updating the final time $t_f$ via gradient descent on $\frac{dJ}{dt_f}$. Both steps use Armijo backtracking line search to ensure cost reduction. For more details on the transversality condition, see the [Wikipedia article on Pontryagin's Maximum Principle](https://en.wikipedia.org/wiki/Pontryagin%27s_maximum_principle).
 
-This exact logic has been implemented in the function [optimalControlSolver](Codes/optimalControlSolver.m). Here, we go over the variables, inputs and outputs of the function.
+
+## Documentation
+
+The exact logic explained in [the theoretical background](#theoretical-background) has been implemented in the function [optimalControlSolver](/matlab/optimalControlSolver.m) (and [the same function](/python/optimalControlSolver.py) for Python). Here, we go over the variables, inputs and outputs of the function.
+
+I've only explained the MATLAB script, but the Python function is similar as well. I've even tried to use the exact same names in both functions.
 
 Problem:
    
    $$
-   \begin{aligned}
-    \text{minimize}& J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt \\
-    \text{subject to}& ẋ = f(x,u),\quad x(0) = x0
-   \end{aligned}
+      \begin{aligned}
+         \text{minimize}& J = Phi(x(tf)) + ∫_0^{tf} g(x(t), u(t)) dt \\
+         \text{subject to}& ẋ = f(x,u),\quad x(0) = x0
+      \end{aligned}
    $$
 
  Usage:
@@ -102,12 +111,18 @@ Outputs:
 - `info.iters` : number of iterations performed
 
 Requirements:
-- MATLAB Symbolic Math Toolbox
-- Free time support has been added. You can use the available options to set it up. Take a look at [Free time CSTR](Codes/CSTR_freeTf.m) to see how to use it 
+- MATLAB Symbolic Math Toolbox for MATLAB
+- `sympy` for Python
 
-Notes:
+## Notes:
 - Instead of a simple gradient descent with a constant step size, the Armijo condition is checked every time and backtracking is used to find an appropriate step size
 - Three sample scripts have been provided:
-   1. [demo.m](Codes/demo.m) contains a linear system with two states and two inputs.
-   2. [CSTR.m](Codes/CSTR.m) solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo)).
-   3. [Free time CSTR](Codes/CSTR_freeTf.m) solves the same optimal control problem as [CSTR.m](Codes/CSTR.m), but with free final time 
+   1. [demo.m](/matlab/demo.m) ([demo.py](/python/demo.py) for Python) contains a linear system with two states and two inputs.
+   2. [CSTR.m](/matlab/CSTR.m) ([CSTR.py](/python/CSTR.py) for Python) solves the optimal control problem for a CSTR system (example 6.2-2 from [Kirk's book](https://books.google.com/books?hl=en&lr=&id=fCh2SAtWIdwC&oi=fnd&pg=PA1&dq=optimal+control+Kirk&ots=xziIYkb-e4&sig=fJ9SZLSPHDYESgw6TMzxO8K2HBo)).
+   3. [Free time CSTR](/matlab/CSTR_freeTf.m) ([CSTR_freeTf.py](/python/CSTR_freeTf.py) for Python) solves the same optimal control problem as [CSTR.m](Codes/CSTR.m), but with free final time 
+- Free time support has been added. You can use the available options to set it up. Take a look at [Free time CSTR](/matlab/CSTR_freeTf.m) to see how to use it.
+
+## Maintainer 
+
+This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well. Feel free to create a pull request.
+

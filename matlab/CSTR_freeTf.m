@@ -22,7 +22,7 @@ g = x1^2 + x2^2 + R*u^2;
 
 % Terminal cost Phi(x)
 Phi = sym(x1^2 + x2^2);
-5
+
 % Initial condition
 x0 = [0.05; 0];
 
