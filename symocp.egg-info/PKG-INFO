@@ -1,13 +1,47 @@
+Metadata-Version: 2.4
+Name: symocp
+Version: 1.0.0
+Summary: Symbolic Optimal Control Problem (OCP) Solver
+Author-email: MRGilak <mohammadreza.gilak@ee.sharif.edu>
+Maintainer-email: MRGilak <mohammadreza.gilak@ee.sharif.edu>
+License-Expression: MIT
+Project-URL: Homepage, https://mgilak.ir/projects/optimal-control/
+Project-URL: Repository, https://github.com/MRGilak/optimal-control
+Project-URL: Bug Tracker, https://github.com/MRGilak/optimal-control/issues
+Project-URL: Documentation, https://github.com/MRGilak/optimal-control#readme
+Keywords: control-systems,optimal-control,optimal-control-problem,ocp,symbolic-control,control-theory
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20
+Requires-Dist: scipy
+Requires-Dist: sympy
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=3.0; extra == "dev"
+Requires-Dist: black>=22.0; extra == "dev"
+Requires-Dist: flake8>=4.0; extra == "dev"
+Provides-Extra: demo
+Requires-Dist: scipy>=1.7.0; extra == "demo"
+Requires-Dist: matplotlib>=3.3.0; extra == "demo"
+Dynamic: license-file
+
 # Optimal Control
 In this repository, MATLAB and Python functions are provided for solving a general nonlinear optimal control problem using the gradient descent approach.
 
 You can define your optimal control problem symbolically using MATLAB symbolic or Python sympy and the functions will solve the problem. Several demos are provided alongside the main functions. 
-
-**_Note_**: Good news! You can now install the Python version using
-```bash
-pip install symocp
-```
-(I have not yet fully tested it myself due to the internet condition in Iran, but I'll get to it as fast as I can).
 
 ## Theoretical Background
 

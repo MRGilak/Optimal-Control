@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "symocp"
+version = "1.0.0"
+description = "Symbolic Optimal Control Problem (OCP) Solver"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+  { name = "MRGilak", email = "mohammadreza.gilak@ee.sharif.edu" }
+]
+maintainers = [
+  { name = "MRGilak", email = "mohammadreza.gilak@ee.sharif.edu" }
+]
+dependencies = [
+  "numpy>=1.20",
+  "scipy",
+  "sympy"
+]
+keywords = [
+  "control-systems",
+  "optimal-control",
+  "optimal-control-problem",
+  "ocp",
+  "symbolic-control",
+  "control-theory",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://mgilak.ir/projects/optimal-control/"
+Repository = "https://github.com/MRGilak/optimal-control"
+"Bug Tracker" = "https://github.com/MRGilak/optimal-control/issues"
+Documentation = "https://github.com/MRGilak/optimal-control#readme"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-cov>=3.0",
+  "black>=22.0",
+  "flake8>=4.0",
+]
+demo = [
+  "scipy>=1.7.0",
+  "matplotlib>=3.3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["optimalControlSolver*"]
+
+[tool.setuptools.package-data]
+optimalControlSolver = ["*.md"]

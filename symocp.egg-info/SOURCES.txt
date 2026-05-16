@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+symocp.egg-info/PKG-INFO
+symocp.egg-info/SOURCES.txt
+symocp.egg-info/dependency_links.txt
+symocp.egg-info/requires.txt
+symocp.egg-info/top_level.txt
